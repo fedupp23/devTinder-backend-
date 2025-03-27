@@ -7,11 +7,13 @@ const userSchema = new mongoose.Schema({
     },
     lastName: {
         type: String,
-        required: true
     },
     emailId: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim:true
     },
     password: {
         type: String,
@@ -22,6 +24,17 @@ const userSchema = new mongoose.Schema({
     },
     gender: {
         type: String,
+    },
+    photoUrl:{
+        type:String,
+        default:"https://geographyandyou.com/images/user-profile.png"
+    },
+    about:{
+        type:String,
+        about:"this is deafault about of user",
+    },
+    skills:{
+        type:[String],
     }
 });
 
