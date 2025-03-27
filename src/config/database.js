@@ -5,10 +5,10 @@ const connectDB = async () => {
         await mongoose.connect(
             "mongodb+srv://krishmehra13yu:468AGxFTUDVPnLSC@cluster1.izagn.mongodb.net/devTinder"
         );
-        console.log("database connection established");
     } catch (err) {
-        console.error("database connection failed", err);
+        // console.error("database connection failed", err);
     }
 };
 
+// Export the connection function
 module.exports = connectDB;
