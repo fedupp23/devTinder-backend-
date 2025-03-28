@@ -1,25 +1,39 @@
 //all the validation will be created in t his file
 //season 2 episode 9
-const validator=require("validator");
-const validateSignUpData=(req)=>{
-    //extraction
-    const{firstName,lastName,emailId,password}=req.body;
-    if(!firstName|| lastName){
-        throw new Error("first name and last name are required");
+const validator = require('validator');
+
+const validateSignUpData = (req) => {
+    // Log the entire request body for debugging
+    console.log("Validation input:", req.body);
+
+    const { firstName, lastName, emailId, password } = req.body;
+
+    const errors = [];
+
+    // Validate firstName
+    if (!firstName || typeof firstName !== 'string' || firstName.trim() === '') {
+        errors.push('First name is required');
     }
-    else if(firstName.length<4||firstName.length>40){
-        throw new Error("first name should be between 4 to 40 characters");
+
+    // Validate lastName
+    if (!lastName || typeof lastName !== 'string' || lastName.trim() === '') {
+        errors.push('Last name is required');
     }
-    else if(lastName.length<4||lastName.length>40){
-        throw new Error("last name should be between 4 to 40 characters");
+
+    // Validate emailId
+    if (!emailId || !validator.isEmail(emailId)) {
+        errors.push('Valid email is required');
     }
-    else if(validator.isEmail(emailId)){
-        throw new Error("email is invalid");
+
+    // Validate password
+    if (!password || password.length < 6) {
+        errors.push('Password must be at least 6 characters');
     }
-    else if(validator.isStrongPassword(password)){
-        throw new Error("password is not strong");
+
+    // If any validation errors exist, throw them
+    if (errors.length > 0) {
+        throw new Error(errors.join(', '));
     }
-}
-module.exports={
-    validateSignUpData,
-}
+};
+
+module.exports = { validateSignUpData };
