@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator=require("validator");
 // Create a separate file for the user model
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -13,17 +14,33 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         lowercase: true,
-        trim:true
+        trim:true,
+        validator(value){
+            if(!validator.isEmail(value)){
+                throw new Error("email is invalid"+value);
+            }
+        }
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        validator(value){
+            if(!validator.isStrongPassword(value)){
+                throw new Error("enter a strong passwrd"+value);
+            }
+        }
     },
     age: {
         type: Number,
-    },
+        min:18,
+    }, 
     gender: {
         type: String,
+        validate(value){ //balidation is being done here
+            if(!["male","female","others"].includes(value)){
+                throw new Error("gender not valid");
+            }
+        }
     },
     photoUrl:{
         type:String,
@@ -36,6 +53,8 @@ const userSchema = new mongoose.Schema({
     skills:{
         type:[String],
     }
+},{
+    timestamps:true
 });
 
 const UserModel = mongoose.model("User", userSchema);

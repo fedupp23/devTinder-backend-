@@ -2,18 +2,71 @@ const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
 const User=require("./models/user");
+const{validateSignUpData}=require("./utils/validation");
+const bcrypt=require("bcrypt");
+const validator=require("validator");
 app.use(express.json()); //this actss as a middleware through which w can parse the json data coming from the post or any api methods
+const cookieParser=require("cookie-parser");
+app.use(cookieParser());
 app.post("/signup",async(req,res)=>{
-    console.log(req.body);
-    const user =new User(req.body);
+    // console.log(req.body);
     try{
+        //validation of data
+        validateSignUpData(req);
+        const {password,firstName,lastName,emailId}=req.body;
+        //encrypt the password
+        const passwordHash=await bcrypt.hash(password,10); 
         await user.save();
         res.send("user created successfully");
+        const user =new User({
+            firstName,
+            lastName,
+            emailId,
+            password:passwordHash,
+        });
     }catch(err){
         res.status(500).send(err.message);
     }
     
 });
+
+app.post("/login",async(req,res)=>{
+    try{
+        const {emailId,password}=req.body;
+        if(!validator.isEmail(emailId)){
+            throw new Error("email is invalid");
+        }
+        const user=await User.findOne({emailId:emailId});
+        if(!user){
+            throw new Error("user not found");
+        }
+        const isPasswordValid=await bcrypt.compare(password,user.password);
+        if(isPasswordValid){
+            res.cookie("token", "tokenamsbdabsjdhahb dhjbqwjhbdjbdjbsabdasmndmasbd");
+            return res.status(200).json({ message: "login successful" });
+
+
+
+
+
+        }
+        else{
+            throw new Error("invalid credentials");
+        }
+
+    }
+    catch(err){
+        res.status(500).send(err.message);
+    }
+
+});
+
+app.get("/profile",async(req,res)=>{
+    const cookie=req.cookies;
+    console.log(cookie);
+    res.send("reading"); 
+});
+
 app.get("/user", async(req, res) => {
     const userEmail = req.body.emailId;
     try {
@@ -47,6 +100,30 @@ app.delete("/user",async(req,res)=>{
         res.status(400).send("something went wrong");
     }
 })
+app.patch("/user/:userId",async(req,res)=>{
+    const userId=req.params?.userId; //params were used here because we added :/useId as a route in our patch api method
+    const data=req.body;
+    
+    try{
+        const allowedUpdates=["userId","photoUrl","about","gender","age","skills"];
+        const isUpdatesAllowed=Object.keys(data).every((k)=>allowedUpdates.includes(k));
+        if(!isUpdatesAllowed){
+        throw new Error("invalid updates");
+        };
+        if(data?.skills,length>10)
+        {
+            throw new Error("skills cannot be more than 10");}
+        const user=await User.findByIdAndUpdate({_id:userId},data,{
+            returnDocument:"after",
+            runValidators:true,
+        });
+        console/log(user);
+        res.send("user updated successfully");
+    }
+    catch(err){
+        res.status(400).send("something went wrong");
+    }
+});
 // Connect to database
 connectDB()
     .then(() => {
@@ -56,6 +133,6 @@ connectDB()
         console.error("database connection failed", err);
     });  // Fixed syntax error: removed extra parenthesis and added semicolon
 
-app.listen(3333, () => {
+app.listen(7778, () => {
     console.log('server is successfully running');
 });
