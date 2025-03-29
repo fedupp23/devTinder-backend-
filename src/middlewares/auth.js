@@ -20,5 +20,5 @@ catch(err){
 };
 
 module.exports={
-    userAuth
+    userAuth//this the auth middleware
 }
