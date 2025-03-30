@@ -2,13 +2,19 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(
-            "mongodb+srv://krishmehra13yu:468AGxFTUDVPnLSC@cluster1.izagn.mongodb.net/"
+        const conn = await mongoose.connect(
+            "mongodb+srv://krishmehra13yu:468AGxFTUDVPnLSC@cluster1.izagn.mongodb.net/devTinder",
+            {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+                serverSelectionTimeoutMS: 5000
+            }
         );
+        console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (err) {
-        // console.error("database connection failed", err);
+        console.error(`Error: ${err.message}`);
+        process.exit(1);
     }
 };
 
-// Export the connection function
 module.exports = connectDB;
